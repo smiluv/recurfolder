@@ -6,6 +6,12 @@ Version 1.1. It is a Windows desktop app for 64-bit Windows 10 and Windows 11.
 
 Maintained by Smilu Varghese.
 
+## Download
+
+Download the Windows setup from here: [RecurFolder-Setup.msi](https://github.com/smiluv/recurfolder/raw/master/setup/RecurFolder-Setup.msi)
+
+Double-click the downloaded file. The setup does not ask for administrator rights. It installs for the current user and adds Start menu and desktop shortcuts. The .NET runtime is included.
+
 ## Purpose
 
 Finding one file inside a deep tree, or making a record of what a folder contains, usually means clicking through folder after folder. RecurFolder walks the tree once and puts the result in a grid:
@@ -37,7 +43,7 @@ Cancel stops a scan that is still running. The rows found so far stay in the gri
 
 ### Install
 
-Double-click `setup\RecurFolder-Setup.msi`. The setup does not ask for administrator rights. It installs for the current user to:
+Download [RecurFolder-Setup.msi](https://github.com/smiluv/recurfolder/raw/master/setup/RecurFolder-Setup.msi) and double-click it. The setup does not ask for administrator rights. It installs for the current user to:
 
 `%LocalAppData%\Programs\RecurFolder`
 

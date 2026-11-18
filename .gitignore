@@ -5,7 +5,8 @@
 [Ll]ogs/
 artifacts/
 publish/
-setup/
+setup/*
+!setup/RecurFolder-Setup.msi
 
 # .NET
 *.user
