@@ -4,6 +4,8 @@ RecurFolder is a free, open-source Windows app that lists every file and folder 
 
 Version 1.1. It is a Windows desktop app for 64-bit Windows 10 and Windows 11.
 
+Maintained by Smilu Varghese.
+
 ## Purpose
 
 Finding one file inside a deep tree, or making a record of what a folder contains, usually means clicking through folder after folder. RecurFolder walks the tree once and puts the result in a grid:
