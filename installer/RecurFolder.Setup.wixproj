@@ -1,0 +1,31 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <OutputName>RecurFolder-Setup</OutputName>
+    <PublishDir>$(MSBuildProjectDirectory)\..\artifacts\publish\</PublishDir>
+    <!-- Per-user file key paths and harvested folders. RemoveFolderEx cleans the tree on uninstall. -->
+    <SuppressIces>ICE38;ICE64;ICE91</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.2" />
+  </ItemGroup>
+
+  <Target Name="PublishApp" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_PublishDir>$([System.IO.Path]::GetFullPath('$(PublishDir)'))</_PublishDir>
+    </PropertyGroup>
+    <MSBuild Projects="$(MSBuildProjectDirectory)\..\RecurFolder.csproj"
+             Targets="Restore;Publish"
+             Properties="Configuration=Release;RuntimeIdentifier=win-x64;SelfContained=true;PublishDir=$(_PublishDir);DebugType=none;DebugSymbols=false" />
+  </Target>
+
+  <Target Name="CopySetup" AfterTargets="Build">
+    <MakeDir Directories="$(MSBuildProjectDirectory)\..\setup" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFiles="$(MSBuildProjectDirectory)\..\setup\$(OutputName).msi"
+          SkipUnchangedFiles="false" />
+  </Target>
+</Project>

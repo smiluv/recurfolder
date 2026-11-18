@@ -1,0 +1,95 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Package Name="RecurFolder"
+           Manufacturer="RecurFolder"
+           Version="1.1.0.0"
+           UpgradeCode="f68c10ed-9245-4d83-84b6-4ea1a44c6243"
+           Scope="perUser"
+           Language="1033">
+
+    <SummaryInformation Description="List every file and folder under a chosen directory." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of RecurFolder is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="RecurFolderIcon" SourceFile="..\Assets\RecurFolder.ico" />
+    <Property Id="ARPPRODUCTICON" Value="RecurFolderIcon" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <Property Id="RECURFOLDER_PATH">
+      <RegistrySearch Id="RecurFolderPathSearch"
+                      Root="HKCU"
+                      Key="Software\RecurFolder"
+                      Name="InstallFolder"
+                      Type="raw" />
+    </Property>
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="UserProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="RecurFolder" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="RecurFolder" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Feature Id="Main" Title="RecurFolder" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="InstallLocation" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Files Include="..\artifacts\publish\**" />
+    </ComponentGroup>
+
+    <Component Id="InstallLocation" Directory="INSTALLFOLDER" Guid="8c4e1a27-6b5f-4e3d-9a1c-2f7d8e0b6c41">
+      <RegistryValue Root="HKCU"
+                     Key="Software\RecurFolder"
+                     Name="InstallFolder"
+                     Type="string"
+                     Value="[INSTALLFOLDER]"
+                     KeyPath="yes" />
+      <util:RemoveFolderEx On="uninstall" Property="RECURFOLDER_PATH" />
+    </Component>
+
+    <Component Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Guid="34e40cdd-5b28-4b73-9497-b364fcf8fbd7">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="RecurFolder"
+                Description="List every file and folder under a chosen directory."
+                Target="[INSTALLFOLDER]RecurFolder.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="RecurFolderIcon" />
+      <RemoveFolder Id="RemoveStartMenuFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU"
+                     Key="Software\RecurFolder"
+                     Name="StartMenuShortcut"
+                     Type="integer"
+                     Value="1"
+                     KeyPath="yes" />
+    </Component>
+
+    <Component Id="DesktopShortcut" Directory="DesktopFolder" Guid="42431a96-eb03-410d-9e05-effca278cc4c">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="RecurFolder"
+                Description="List every file and folder under a chosen directory."
+                Target="[INSTALLFOLDER]RecurFolder.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="RecurFolderIcon" />
+      <RegistryValue Root="HKCU"
+                     Key="Software\RecurFolder"
+                     Name="DesktopShortcut"
+                     Type="integer"
+                     Value="1"
+                     KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>
