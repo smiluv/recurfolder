@@ -6,6 +6,26 @@ Version 1.1. It is a Windows desktop app for 64-bit Windows 10 and Windows 11.
 
 Maintained by Smilu Varghese.
 
+## Screenshots
+
+These pictures show a scan of `D:\EpicGames`. The folder tree shows only that branch.
+
+### The list
+
+![RecurFolder listing the folders inside EpicGames](docs/images/scan.png)
+
+### Search
+
+Search keeps the rows that match. Here the word Valorant leaves three folders.
+
+![Search limited to Valorant](docs/images/search.png)
+
+### Export
+
+Export saves the rows on screen as Excel, CSV, or PDF.
+
+![Export menu with Excel, CSV, and PDF](docs/images/export.png)
+
 ## Download
 
 Download the Windows setup from here: [RecurFolder-Setup.msi](https://github.com/smiluv/recurfolder/raw/master/setup/RecurFolder-Setup.msi)
