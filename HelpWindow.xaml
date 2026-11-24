@@ -1,0 +1,90 @@
+<Window x:Class="RecurFolder.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Help"
+        Icon="pack://application:,,,/Assets/RecurFolder.ico"
+        Width="480"
+        Height="560"
+        MinWidth="400"
+        MinHeight="360"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource InkBrush}"
+        FontFamily="Segoe UI"
+        FontSize="13"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    <DockPanel>
+        <Button DockPanel.Dock="Bottom"
+                Content="OK"
+                Margin="0,8,0,18"
+                HorizontalAlignment="Center"
+                MinWidth="88"
+                IsDefault="True"
+                IsCancel="True"
+                Style="{StaticResource PrimaryButton}"
+                Click="OkButton_Click"/>
+        <ScrollViewer Margin="28,18,28,0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <TextBlock Text="How it works"
+                           FontSize="20"
+                           FontWeight="SemiBold"/>
+                <TextBlock Margin="0,10,0,0"
+                           TextWrapping="Wrap"
+                           Text="RecurFolder lists every file and folder under a folder you choose. You can search that list, copy names and paths, and save it as Excel, CSV, or PDF. The files themselves stay where they are."/>
+
+                <TextBlock Margin="0,18,0,0"
+                           FontWeight="SemiBold"
+                           Text="Choose a folder"/>
+                <TextBlock Margin="0,6,0,0"
+                           TextWrapping="Wrap"
+                           Text="Type or paste a path and press Scan, or press Enter in the path box. Browse opens a folder picker. You can also drop a folder onto the window. Dropping a file uses the folder that contains it."/>
+                <TextBlock Margin="0,8,0,0"
+                           TextWrapping="Wrap"
+                           Text="In the tree on the left, click a folder name to scan it. The arrow only opens that branch."/>
+
+                <TextBlock Margin="0,18,0,0"
+                           FontWeight="SemiBold"
+                           Text="The list"/>
+                <TextBlock Margin="0,6,0,0"
+                           TextWrapping="Wrap"
+                           Text="Each file and folder is one row. The columns are the folder it sits in, the name, the full path, and whether it is a file or a folder. Folders inside folders are included. A link is listed on its own row, and the scan stays in the folder you chose."/>
+                <TextBlock Margin="0,8,0,0"
+                           TextWrapping="Wrap"
+                           Text="The status line shows how many files and folders were found, and how long the scan took. While a scan is running, Scan becomes Cancel. Cancel keeps the rows found so far."/>
+
+                <TextBlock Margin="0,18,0,0"
+                           FontWeight="SemiBold"
+                           Text="Search"/>
+                <TextBlock Margin="0,6,0,0"
+                           TextWrapping="Wrap"
+                           Text="Type in the search box. Letter case does not matter. Separate words with spaces. A row stays when every word appears in its folder name, filename, path, or type. Clear removes the search and shows the full list again. Ctrl+F moves to the search box."/>
+
+                <TextBlock Margin="0,18,0,0"
+                           FontWeight="SemiBold"
+                           Text="Copy and reveal"/>
+                <TextBlock Margin="0,6,0,0"
+                           TextWrapping="Wrap"
+                           Text="Select one or more rows. The Edit menu, or a right-click, can reveal the item in File Explorer, copy the file name, or copy the full path. Copy file name puts each selected name on its own line. Double-click a row, press Enter, or click Reveal to show it in File Explorer."/>
+
+                <TextBlock Margin="0,18,0,0"
+                           FontWeight="SemiBold"
+                           Text="Save the list"/>
+                <TextBlock Margin="0,6,0,0"
+                           TextWrapping="Wrap"
+                           Text="Export saves the rows on screen as an Excel workbook, a CSV file, or a PDF. A search is included, so the file matches what you see. Ctrl+E opens the same menu."/>
+
+                <TextBlock Margin="0,18,0,4"
+                           FontWeight="SemiBold"
+                           Text="Start over"/>
+                <TextBlock Margin="0,6,0,8"
+                           TextWrapping="Wrap"
+                           Text="Reset clears the folder path, the search, and the list."/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

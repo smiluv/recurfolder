@@ -31,8 +31,8 @@ public static class ExcelExporter
 
         var header = sheet.Range(1, 1, 1, 4);
         header.Style.Font.Bold = true;
-        header.Style.Font.FontColor = XLColor.FromHtml("#F6F3EE");
-        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#243027");
+        header.Style.Font.FontColor = XLColor.FromHtml("#1A1A1A");
+        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#F2F2F2");
         header.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
         if (rows.Count > 0)

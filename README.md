@@ -2,7 +2,7 @@
 
 RecurFolder is a free, open-source Windows app that lists every file and folder under a directory you choose. You can search that list, open an item in File Explorer, and save it as Excel, CSV, or PDF.
 
-Version 1.1. It is a Windows desktop app for 64-bit Windows 10 and Windows 11.
+Version 1.2.0. It is a Windows desktop app for 64-bit Windows 10 and Windows 11.
 
 Maintained by Smilu Varghese.
 

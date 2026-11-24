@@ -15,12 +15,11 @@ public static class PdfExporter
     private const double RowHeight = 16;
     private const double FooterHeight = 22;
 
-    private static readonly XSolidBrush HeaderFill = new(XColor.FromArgb(0x24, 0x30, 0x27));
-    private static readonly XSolidBrush HeaderText = new(XColor.FromArgb(0xF6, 0xF3, 0xEE));
-    private static readonly XSolidBrush AltFill = new(XColor.FromArgb(0xF6, 0xF3, 0xEE));
-    private static readonly XSolidBrush Ink = new(XColor.FromArgb(0x1F, 0x1A, 0x17));
-    private static readonly XSolidBrush FolderInk = new(XColor.FromArgb(0x1F, 0x6B, 0x4A));
-    private static readonly XSolidBrush Muted = new(XColor.FromArgb(0x6F, 0x67, 0x5F));
+    private static readonly XSolidBrush HeaderFill = new(XColor.FromArgb(0xF2, 0xF2, 0xF2));
+    private static readonly XSolidBrush HeaderText = new(XColor.FromArgb(0x1A, 0x1A, 0x1A));
+    private static readonly XSolidBrush AltFill = new(XColor.FromArgb(0xF7, 0xF7, 0xF7));
+    private static readonly XSolidBrush Ink = new(XColor.FromArgb(0x1A, 0x1A, 0x1A));
+    private static readonly XSolidBrush Muted = new(XColor.FromArgb(0x61, 0x61, 0x61));
 
     private static readonly string[] Headers = ["Folder name", "Filename", "File path", "Type"];
     private static readonly double[] ColumnWidths = [160, 180, 340, 56];
@@ -90,18 +89,11 @@ public static class PdfExporter
                 Clean(row.FilePath),
                 Clean(row.Kind)
             };
-            var brushes = new[]
-            {
-                Ink,
-                Ink,
-                Ink,
-                row.Kind == "Folder" ? FolderInk : Ink
-            };
 
             var x = Margin;
             for (var column = 0; column < values.Length; column++)
             {
-                DrawCell(graphics!, values[column], cellFont, brushes[column], x, y, ColumnWidths[column], RowHeight);
+                DrawCell(graphics!, values[column], cellFont, Ink, x, y, ColumnWidths[column], RowHeight);
                 x += ColumnWidths[column];
             }
 

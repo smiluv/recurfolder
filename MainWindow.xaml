@@ -11,8 +11,10 @@
         MinHeight="560"
         MinWidth="980"
         WindowStartupLocation="CenterScreen"
-        Background="#EFEAE2"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource InkBrush}"
         FontFamily="Segoe UI"
+        FontSize="13"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display"
@@ -20,85 +22,120 @@
         PreviewDragOver="Window_PreviewDragOver"
         PreviewDrop="Window_PreviewDrop"
         PreviewKeyDown="Window_PreviewKeyDown">
-    <Grid Margin="22">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <DockPanel>
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource WindowBackgroundBrush}"
+                BorderBrush="{DynamicResource LineBrush}"
+                BorderThickness="0,0,0,1">
+            <Menu Background="Transparent"
+                  Foreground="{DynamicResource InkBrush}"
+                  FontFamily="Segoe UI"
+                  FontSize="13">
+                <MenuItem Header="_File">
+                    <MenuItem x:Name="FileExportItem"
+                              Header="_Export"
+                              IsEnabled="False"
+                              InputGestureText="Ctrl+E"
+                              ToolTip="Save the rows currently shown">
+                        <MenuItem Header="Excel workbook (.xlsx)" Tag="xlsx" Click="ExportMenu_Click"/>
+                        <MenuItem Header="CSV (.csv)" Tag="csv" Click="ExportMenu_Click"/>
+                        <MenuItem Header="PDF (.pdf)" Tag="pdf" Click="ExportMenu_Click"/>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem x:Name="ThemeMenu" Header="_Theme">
+                        <MenuItem Header="_Light" Tag="Light" IsCheckable="True" Click="ThemeMenu_Click"/>
+                        <MenuItem Header="_Dark" Tag="Dark" IsCheckable="True" Click="ThemeMenu_Click"/>
+                        <MenuItem Header="De_fault"
+                                  Tag="Default"
+                                  IsCheckable="True"
+                                  ToolTip="Use the Windows app theme"
+                                  Click="ThemeMenu_Click"/>
+                        <Separator/>
+                        <MenuItem Header="_Ocean" Tag="Ocean" IsCheckable="True" Click="ThemeMenu_Click"/>
+                        <MenuItem Header="_Forest" Tag="Forest" IsCheckable="True" Click="ThemeMenu_Click"/>
+                        <MenuItem Header="D_usk" Tag="Dusk" IsCheckable="True" Click="ThemeMenu_Click"/>
+                        <MenuItem Header="_Glacier" Tag="Glacier" IsCheckable="True" Click="ThemeMenu_Click"/>
+                        <MenuItem Header="_Copper" Tag="Copper" IsCheckable="True" Click="ThemeMenu_Click"/>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="E_xit" Click="ExitMenu_Click"/>
+                </MenuItem>
+                <MenuItem Header="_Edit">
+                    <MenuItem x:Name="EditRevealItem"
+                              Header="_Reveal in folder"
+                              Click="ContextReveal_Click"
+                              IsEnabled="False"/>
+                    <MenuItem x:Name="EditCopyNameItem"
+                              Header="Copy file _name"
+                              Click="ContextCopyName_Click"
+                              IsEnabled="False"/>
+                    <MenuItem x:Name="EditCopyPathItem"
+                              Header="Copy file _path"
+                              Click="ContextCopy_Click"
+                              IsEnabled="False"/>
+                </MenuItem>
+                <MenuItem Header="_Help" Click="HelpMenu_Click"/>
+                <MenuItem Header="_About" Click="AboutMenu_Click"/>
+            </Menu>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom"
+                Background="{DynamicResource StatusBrush}"
+                BorderBrush="{DynamicResource LineBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="10,6">
+            <TextBlock x:Name="StatusText"
+                       FontSize="12"
+                       Foreground="{DynamicResource InkBrush}"
+                       TextTrimming="CharacterEllipsis"
+                       ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                       Text="Choose a folder on the left, type a path, or drop a folder here."/>
+        </Border>
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Image Width="36"
-                   Height="36"
-                   Margin="0,2,12,0"
-                   VerticalAlignment="Top"
-                   RenderOptions.BitmapScalingMode="HighQuality"
-                   Source="pack://application:,,,/Assets/RecurFolder.ico"/>
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="RecurFolder"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Foreground="#1F1A17"/>
-                <TextBlock Margin="0,4,0,0"
-                           FontSize="13"
-                           Foreground="#6F675F"
-                           TextWrapping="Wrap"
-                           Text="Walk every nested folder and file, then search the list or save it as Excel, CSV, or PDF."/>
-            </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="1" Margin="0,16,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280" MinWidth="200"/>
-                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="260" MinWidth="180"/>
+                <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*" MinWidth="560"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    Background="#FFFCF8"
-                    BorderBrush="#E3DBD1"
-                    BorderThickness="1"
-                    CornerRadius="10">
+                    Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="0,0,1,0">
                 <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Margin="14,12,14,8">
-                        <TextBlock Text="Folders"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="#1F1A17"/>
-                        <TextBlock Margin="0,2,0,0"
-                                   FontSize="12"
-                                   Foreground="#6F675F"
-                                   Text="Select a folder to scan"/>
-                    </StackPanel>
+                    <Border DockPanel.Dock="Top"
+                            Background="{DynamicResource WindowBackgroundBrush}"
+                            BorderBrush="{DynamicResource LineBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="10,8">
+                        <StackPanel>
+                            <TextBlock Text="Folders" FontWeight="SemiBold"/>
+                            <TextBlock Margin="0,2,0,0"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource MutedBrush}"
+                                       Text="Select a folder to scan"/>
+                        </StackPanel>
+                    </Border>
                     <TreeView x:Name="FolderTree"
-                              Margin="6,0,6,8"
                               Background="Transparent"
                               BorderThickness="0"
-                              Padding="2,0,2,4"
+                              Padding="4,4,2,4"
                               VirtualizingPanel.IsVirtualizing="False"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               PreviewMouseLeftButtonUp="FolderTree_PreviewMouseLeftButtonUp"
                               PreviewKeyDown="FolderTree_PreviewKeyDown">
                         <TreeView.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#E5F2EB"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#1F1A17"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#E5F2EB"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#1F1A17"/>
-
                             <Style x:Key="FolderTreeItem" TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                                <Setter Property="Padding" Value="2,3"/>
+                                <Setter Property="Padding" Value="2,2"/>
                                 <Setter Property="FontSize" Value="13"/>
-                                <Setter Property="Foreground" Value="#1F1A17"/>
+                                <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#E5F2EB"/>
-                                        <Setter Property="Foreground" Value="#1F1A17"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource SelectionTextBrush}"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -111,9 +148,9 @@
                                 <StackPanel Orientation="Horizontal" ToolTip="{Binding Tip}">
                                     <TextBlock FontFamily="Segoe MDL2 Assets"
                                                FontSize="14"
-                                               Margin="0,0,8,0"
+                                               Margin="0,0,6,0"
                                                VerticalAlignment="Center"
-                                               Foreground="#1F6B4A"
+                                               Foreground="{DynamicResource GlyphBrush}"
                                                Text="{Binding Glyph}"/>
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -124,291 +161,306 @@
             </Border>
 
             <GridSplitter Grid.Column="1"
-                          Width="12"
+                          Width="5"
                           HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch"
-                          Background="Transparent"
+                          Background="{DynamicResource WindowBackgroundBrush}"
                           ResizeDirection="Columns"
                           ResizeBehavior="PreviousAndNext"
+                          ShowsPreview="False"
                           Cursor="SizeWE"/>
 
-            <Grid Grid.Column="2">
+            <Grid Grid.Column="2" Margin="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-        <Border Grid.Row="0"
-                Margin="0,0,0,14"
-                Padding="14"
-                Background="#FFFCF8"
-                BorderBrush="#E3DBD1"
-                BorderThickness="1"
-                CornerRadius="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="78"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid Margin="0,2,0,8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="64"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Folder"
-                           VerticalAlignment="Center"
-                           FontWeight="SemiBold"
-                           Foreground="#3E3832"/>
+                    <TextBlock Text="Folder"
+                               VerticalAlignment="Center"/>
 
-                <Grid Grid.Column="1">
-                    <TextBox x:Name="FolderPathBox"
-                             Style="{StaticResource FieldBox}"
-                             KeyDown="FolderPathBox_KeyDown"
-                             TextChanged="FolderPathBox_TextChanged"/>
-                    <TextBlock x:Name="FolderHint"
-                               Margin="12,0,0,0"
+                    <Grid Grid.Column="1">
+                        <TextBox x:Name="FolderPathBox"
+                                 Style="{StaticResource FieldBox}"
+                                 KeyDown="FolderPathBox_KeyDown"
+                                 TextChanged="FolderPathBox_TextChanged"/>
+                        <TextBlock x:Name="FolderHint"
+                                   Margin="10,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   Foreground="{DynamicResource HintBrush}"
+                                   Text="Type a folder path"/>
+                    </Grid>
+
+                    <Button x:Name="BrowseButton"
+                            Grid.Column="2"
+                            Margin="8,0,0,0"
+                            Content="Browse"
+                            Style="{StaticResource SecondaryButton}"
+                            Click="BrowseButton_Click"/>
+                    <Button x:Name="ScanButton"
+                            Grid.Column="3"
+                            Margin="8,0,0,0"
+                            Content="Scan"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="ScanButton_Click"/>
+                    <Button x:Name="ResetButton"
+                            Grid.Column="4"
+                            Margin="8,0,0,0"
+                            Content="Reset"
+                            Style="{StaticResource SecondaryButton}"
+                            Click="ResetButton_Click"
+                            IsEnabled="False"
+                            ToolTip="Clear the folder path, the search, and the list"/>
+
+                    <TextBlock Grid.Row="1"
+                               Margin="0,8,0,0"
                                VerticalAlignment="Center"
-                               IsHitTestVisible="False"
-                               Foreground="#9A9188"
-                               Text="Type a folder path"/>
+                               Text="Search"/>
+
+                    <Grid Grid.Row="1" Grid.Column="1" Margin="0,8,0,0">
+                        <TextBox x:Name="SearchBox"
+                                 Style="{StaticResource FieldBox}"
+                                 TextChanged="SearchBox_TextChanged"/>
+                        <TextBlock x:Name="SearchHint"
+                                   Margin="10,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   Foreground="{DynamicResource HintBrush}"
+                                   Text="Filter by folder, file name, or path"/>
+                    </Grid>
+
+                    <Button x:Name="ClearButton"
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Margin="8,8,0,0"
+                            Content="Clear"
+                            Style="{StaticResource SecondaryButton}"
+                            Click="ClearButton_Click"
+                            IsEnabled="False"
+                            ToolTip="Clear the search"/>
+                    <Button x:Name="ExportButton"
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            Grid.ColumnSpan="2"
+                            Margin="8,8,0,0"
+                            HorizontalAlignment="Stretch"
+                            Content="Export"
+                            Style="{StaticResource SecondaryButton}"
+                            Click="ExportButton_Click"
+                            IsEnabled="False"
+                            ToolTip="Save the rows currently shown as Excel, CSV, or PDF">
+                        <Button.ContextMenu>
+                            <ContextMenu Placement="Bottom">
+                                <MenuItem Header="Excel workbook (.xlsx)" Tag="xlsx" Click="ExportMenu_Click"/>
+                                <MenuItem Header="CSV (.csv)" Tag="csv" Click="ExportMenu_Click"/>
+                                <MenuItem Header="PDF (.pdf)" Tag="pdf" Click="ExportMenu_Click"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                 </Grid>
 
-                <Button x:Name="BrowseButton"
-                        Grid.Column="2"
-                        Margin="8,0,0,0"
-                        Content="Browse"
-                        Style="{StaticResource SecondaryButton}"
-                        Click="BrowseButton_Click"/>
-                <Button x:Name="ScanButton"
-                        Grid.Column="3"
-                        Margin="8,0,0,0"
-                        Content="Scan"
-                        Style="{StaticResource PrimaryButton}"
-                        Click="ScanButton_Click"/>
-
-                <TextBlock Grid.Row="1"
-                           Margin="0,10,0,0"
-                           VerticalAlignment="Center"
-                           FontWeight="SemiBold"
-                           Foreground="#3E3832"
-                           Text="Search"/>
-
-                <Grid Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
-                    <TextBox x:Name="SearchBox"
-                             Style="{StaticResource FieldBox}"
-                             TextChanged="SearchBox_TextChanged"/>
-                    <TextBlock x:Name="SearchHint"
-                               Margin="12,0,0,0"
-                               VerticalAlignment="Center"
-                               IsHitTestVisible="False"
-                               Foreground="#9A9188"
-                               Text="Filter by folder, file name, or path"/>
-                </Grid>
-
-                <Button x:Name="ExportButton"
-                        Grid.Row="1"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="2"
-                        Margin="8,10,0,0"
-                        HorizontalAlignment="Stretch"
-                        Content="Export"
-                        Style="{StaticResource SecondaryButton}"
-                        Click="ExportButton_Click"
-                        IsEnabled="False"
-                        ToolTip="Save the rows currently shown as Excel, CSV, or PDF">
-                    <Button.ContextMenu>
-                        <ContextMenu Placement="Bottom">
-                            <MenuItem Header="Excel workbook (.xlsx)" Tag="xlsx" Click="ExportMenu_Click"/>
-                            <MenuItem Header="CSV (.csv)" Tag="csv" Click="ExportMenu_Click"/>
-                            <MenuItem Header="PDF (.pdf)" Tag="pdf" Click="ExportMenu_Click"/>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
-            </Grid>
-        </Border>
-
-        <Border Grid.Row="1"
-                Background="White"
-                BorderBrush="#E3DBD1"
-                BorderThickness="1">
-            <Grid>
-                <DataGrid x:Name="ItemsGrid"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          CanUserAddRows="False"
-                          CanUserDeleteRows="False"
-                          CanUserResizeRows="False"
-                          SelectionMode="Extended"
-                          SelectionUnit="FullRow"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          HorizontalGridLinesBrush="#E6DFD4"
-                          BorderThickness="0"
-                          Background="White"
-                          RowBackground="White"
-                          AlternatingRowBackground="#F7F4EE"
-                          AlternationCount="2"
-                          RowHeight="36"
-                          ColumnHeaderHeight="38"
-                          FontSize="13"
-                          Foreground="#1F1A17"
-                          EnableRowVirtualization="True"
-                          EnableColumnVirtualization="True"
-                          VirtualizingPanel.IsVirtualizing="True"
-                          VirtualizingPanel.VirtualizationMode="Recycling"
-                          ClipboardCopyMode="ExcludeHeader"
-                          MouseDoubleClick="ItemsGrid_MouseDoubleClick"
-                          PreviewKeyDown="ItemsGrid_PreviewKeyDown"
-                          PreviewMouseRightButtonDown="ItemsGrid_PreviewMouseRightButtonDown">
-                    <DataGrid.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#E5F2EB"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#1F1A17"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#E5F2EB"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#1F1A17"/>
-
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="Background" Value="#243027"/>
-                            <Setter Property="Foreground" Value="#F6F3EE"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="FontSize" Value="12.5"/>
-                            <Setter Property="Padding" Value="12,0"/>
-                            <Setter Property="BorderBrush" Value="#314338"/>
-                            <Setter Property="BorderThickness" Value="0,0,1,0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                            <Setter Property="VerticalContentAlignment" Value="Center"/>
-                            <Setter Property="SeparatorBrush" Value="#314338"/>
-                        </Style>
-
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Background" Value="White"/>
-                            <Style.Triggers>
-                                <Trigger Property="AlternationIndex" Value="1">
-                                    <Setter Property="Background" Value="#F7F4EE"/>
-                                </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#E5F2EB"/>
-                                    <Setter Property="Foreground" Value="#1F1A17"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="Padding" Value="12,0"/>
-                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="DataGridCell">
-                                        <Border Background="{TemplateBinding Background}"
-                                                Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#E5F2EB"/>
-                                    <Setter Property="Foreground" Value="#1F1A17"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.Resources>
-
-                    <DataGrid.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Reveal in folder" Click="ContextReveal_Click"/>
-                            <MenuItem Header="Copy file path" Click="ContextCopy_Click"/>
-                        </ContextMenu>
-                    </DataGrid.ContextMenu>
-
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Folder name"
-                                            Binding="{Binding FolderName}"
-                                            Width="180"
-                                            MinWidth="120">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource CellText}">
-                                    <Setter Property="ToolTip" Value="{Binding FolderName}"/>
+                <Border Grid.Row="1"
+                        Background="{DynamicResource RowBrush}"
+                        BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="1">
+                    <Grid>
+                        <DataGrid x:Name="ItemsGrid"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  CanUserResizeRows="False"
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="{DynamicResource GridLineBrush}"
+                                  BorderThickness="0"
+                                  Background="{DynamicResource RowBrush}"
+                                  RowBackground="{DynamicResource RowBrush}"
+                                  AlternatingRowBackground="{DynamicResource AltRowBrush}"
+                                  AlternationCount="2"
+                                  RowHeight="32"
+                                  ColumnHeaderHeight="32"
+                                  FontSize="13"
+                                  Foreground="{DynamicResource InkBrush}"
+                                  EnableRowVirtualization="True"
+                                  EnableColumnVirtualization="True"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling"
+                                  ClipboardCopyMode="ExcludeHeader"
+                                  MouseDoubleClick="ItemsGrid_MouseDoubleClick"
+                                  PreviewKeyDown="ItemsGrid_PreviewKeyDown"
+                                  PreviewMouseRightButtonDown="ItemsGrid_PreviewMouseRightButtonDown"
+                                  SelectionChanged="ItemsGrid_SelectionChanged">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="{DynamicResource HeaderBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource HeaderTextBrush}"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="12"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource HeaderLineBrush}"/>
+                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                    <Setter Property="SeparatorBrush" Value="{DynamicResource HeaderLineBrush}"/>
                                 </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="Filename"
-                                            Binding="{Binding FileName}"
-                                            Width="220"
-                                            MinWidth="140">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource CellText}">
-                                    <Setter Property="ToolTip" Value="{Binding FileName}"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="File path"
-                                            Binding="{Binding FilePath}"
-                                            Width="*"
-                                            MinWidth="240">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource CellText}">
-                                    <Setter Property="ToolTip" Value="{Binding FilePath}"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTemplateColumn Header="Type" Width="88" SortMemberPath="Kind">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Kind}" VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#6F675F"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Kind}" Value="Folder">
-                                                        <Setter Property="Foreground" Value="#1F6B4A"/>
-                                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="" Width="100" CanUserSort="False" CanUserResize="False">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="Reveal"
-                                            Style="{StaticResource RevealButton}"
-                                            HorizontalAlignment="Left"
-                                            ToolTip="Show this item in File Explorer"
-                                            Click="RevealButton_Click"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
 
-                <TextBlock x:Name="EmptyText"
-                           Margin="24,48,24,0"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           TextAlignment="Center"
-                           FontSize="14"
-                           Foreground="#6F675F"
-                           Text="Choose a folder on the left, or type a path and press Scan."/>
-            </Grid>
-        </Border>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="{DynamicResource RowBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="AlternationIndex" Value="1">
+                                            <Setter Property="Background" Value="{DynamicResource AltRowBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource SelectionBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SelectionTextBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
 
-        <TextBlock x:Name="StatusText"
-                   Grid.Row="2"
-                   Margin="2,10,0,0"
-                   FontSize="12.5"
-                   Foreground="#6F675F"
-                   TextTrimming="CharacterEllipsis"
-                   ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                   Text="Choose a folder on the left, type a path, or drop a folder here."/>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridCell">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource SelectionBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SelectionTextBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.Resources>
+
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Reveal in folder" Click="ContextReveal_Click"/>
+                                    <MenuItem Header="Copy file name" Click="ContextCopyName_Click"/>
+                                    <MenuItem Header="Copy file path" Click="ContextCopy_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Folder name"
+                                                    Binding="{Binding FolderName}"
+                                                    Width="180"
+                                                    MinWidth="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CellText}">
+                                            <Setter Property="ToolTip" Value="{Binding FolderName}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Filename"
+                                                    Binding="{Binding FileName}"
+                                                    Width="220"
+                                                    MinWidth="140">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CellText}">
+                                            <Setter Property="ToolTip" Value="{Binding FileName}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="File path"
+                                                    Binding="{Binding FilePath}"
+                                                    Width="*"
+                                                    MinWidth="240">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CellText}">
+                                            <Setter Property="ToolTip" Value="{Binding FilePath}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTemplateColumn Header="Type" Width="88" SortMemberPath="Kind">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Kind}" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="Folder">
+                                                                <Setter Property="Foreground" Value="{DynamicResource GlyphBrush}"/>
+                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="" Width="92" CanUserSort="False" CanUserResize="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Reveal"
+                                                    Style="{StaticResource RevealButton}"
+                                                    HorizontalAlignment="Left"
+                                                    ToolTip="Show this item in File Explorer"
+                                                    Click="RevealButton_Click"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock x:Name="EmptyText"
+                                   Margin="24"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource MutedBrush}"
+                                   Text="Choose a folder on the left, or type a path and press Scan."/>
+
+                        <StackPanel x:Name="ScanOverlay"
+                                    Width="280"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="Collapsed"
+                                    IsHitTestVisible="False">
+                            <ProgressBar x:Name="ScanProgress"
+                                         Height="6"
+                                         IsIndeterminate="False"
+                                         AutomationProperties.Name="Scan in progress"
+                                         Style="{StaticResource IndeterminateBar}"/>
+                            <TextBlock x:Name="ScanCountText"
+                                       Margin="0,14,0,0"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource MutedBrush}"
+                                       Text="0 items"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </Grid>
         </Grid>
-    </Grid>
+    </DockPanel>
 </Window>

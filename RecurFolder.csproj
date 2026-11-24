@@ -10,7 +10,7 @@
     <ApplicationIcon>Assets\RecurFolder.ico</ApplicationIcon>
     <ApplicationTitle>RecurFolder</ApplicationTitle>
     <Product>RecurFolder</Product>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Description>List every file and folder under a chosen directory.</Description>
     <Company>RecurFolder</Company>
   </PropertyGroup>
@@ -22,7 +22,9 @@
 
   <ItemGroup>
     <None Remove="Assets\RecurFolder.ico" />
+    <None Remove="Assets\RecurFolder.png" />
     <Resource Include="Assets\RecurFolder.ico" />
+    <Resource Include="Assets\RecurFolder.png" />
   </ItemGroup>
 
 </Project>

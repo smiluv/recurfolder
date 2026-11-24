@@ -2,11 +2,13 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Win32;
@@ -42,6 +44,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ThemeManager.ThemeChanged += OnThemeChanged;
+        UpdateThemeChecks();
         _searchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(180) };
         _searchTimer.Tick += (_, _) =>
         {
@@ -73,10 +77,104 @@ public partial class MainWindow : Window
         };
     }
 
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        if (PresentationSource.FromVisual(this) is HwndSource source)
+            source.AddHook(OnWindowMessage);
+        ThemeManager.ApplyTitleBar(new WindowInteropHelper(this).Handle);
+    }
+
     protected override void OnClosed(EventArgs e)
     {
+        ThemeManager.ThemeChanged -= OnThemeChanged;
         _scanCts?.Cancel();
         base.OnClosed(e);
+    }
+
+    private IntPtr OnWindowMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        const int settingChange = 0x001A;
+        const int setHighContrast = 0x0043;
+        if (msg != settingChange || ThemeManager.Selected != AppTheme.Default)
+            return IntPtr.Zero;
+
+        var setting = lParam == IntPtr.Zero ? null : Marshal.PtrToStringAuto(lParam);
+        if (wParam != setHighContrast && setting is not ("ImmersiveColorSet" or "WindowsThemeElement"))
+            return IntPtr.Zero;
+
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (ThemeManager.Selected == AppTheme.Default)
+                ThemeManager.Apply(AppTheme.Default, save: false);
+        });
+        return IntPtr.Zero;
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(new Action(() => OnThemeChanged(sender, e)));
+            return;
+        }
+
+        UpdateThemeChecks();
+        ThemeManager.ApplyTitleBar(new WindowInteropHelper(this).Handle);
+    }
+
+    private void UpdateThemeChecks()
+    {
+        foreach (var item in ThemeMenu.Items)
+        {
+            if (item is MenuItem { Tag: string tag } menuItem)
+            {
+                menuItem.IsChecked = string.Equals(
+                    tag,
+                    ThemeManager.Selected.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+            }
+        }
+    }
+
+    private void ThemeMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem { Tag: string tag })
+            return;
+        if (!Enum.TryParse(tag, ignoreCase: true, out AppTheme theme))
+            return;
+
+        ThemeManager.Apply(theme);
+    }
+
+    private void ExitMenu_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+
+    private void HelpMenu_Click(object sender, RoutedEventArgs e)
+    {
+        var help = new HelpWindow { Owner = this };
+        help.ShowDialog();
+    }
+
+    private void AboutMenu_Click(object sender, RoutedEventArgs e)
+    {
+        var about = new AboutWindow { Owner = this };
+        about.ShowDialog();
+    }
+
+    private void ItemsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateEditMenu();
+    }
+
+    private void UpdateEditMenu()
+    {
+        var enabled = ItemsGrid.SelectedItems.Count > 0;
+        EditRevealItem.IsEnabled = enabled;
+        EditCopyNameItem.IsEnabled = enabled;
+        EditCopyPathItem.IsEnabled = enabled;
     }
 
     private async void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -178,16 +276,18 @@ public partial class MainWindow : Window
         _all = [];
         _view = null;
         ItemsGrid.ItemsSource = null;
-        EmptyText.Text = "Scanning the folder…";
-        EmptyText.Visibility = Visibility.Visible;
-        StatusText.Text = "Scanning…";
+        var startedCount = ItemCount(0);
+        ScanCountText.Text = startedCount;
+        StatusText.Text = startedCount;
 
         var progress = new Progress<ScanProgress>(update =>
         {
             if (generation != _scanGeneration)
                 return;
 
-            StatusText.Text = $"Scanning… {update.Found:N0} items";
+            var count = ItemCount(update.Found);
+            ScanCountText.Text = count;
+            StatusText.Text = count;
         });
 
         var started = Stopwatch.StartNew();
@@ -204,6 +304,7 @@ public partial class MainWindow : Window
             SetScanning(false);
             StatusText.Text = "Scan failed.";
             EmptyText.Text = "The scan could not finish.";
+            EmptyText.Visibility = Visibility.Visible;
             MessageBox.Show(this, ex.Message, "Could not scan that folder", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -233,6 +334,7 @@ public partial class MainWindow : Window
         FolderHint.Visibility = string.IsNullOrEmpty(FolderPathBox.Text)
             ? Visibility.Visible
             : Visibility.Collapsed;
+        UpdateClearReset();
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -240,8 +342,68 @@ public partial class MainWindow : Window
         SearchHint.Visibility = string.IsNullOrEmpty(SearchBox.Text)
             ? Visibility.Visible
             : Visibility.Collapsed;
+        UpdateClearReset();
         _searchTimer.Stop();
         _searchTimer.Start();
+    }
+
+    private void ClearButton_Click(object sender, RoutedEventArgs e)
+    {
+        SearchBox.Clear();
+        SearchBox.Focus();
+    }
+
+    private void ResetButton_Click(object sender, RoutedEventArgs e)
+    {
+        _scanCts?.Cancel();
+        _scanGeneration++;
+        _treeRevealGeneration++;
+        SetScanning(false);
+
+        _scannedRoot = null;
+        _hasScanned = false;
+        _all = [];
+        _view = null;
+        _fileCount = 0;
+        _folderCount = 0;
+        _lastElapsed = TimeSpan.Zero;
+        _lastSkipped = 0;
+        _lastLinks = 0;
+        _lastCancelled = false;
+        ItemsGrid.ItemsSource = null;
+        ClearTreeSelection();
+
+        SearchBox.Clear();
+        FolderPathBox.Clear();
+        Title = "RecurFolder";
+        EmptyText.Text = "Choose a folder on the left, or type a path and press Scan.";
+        EmptyText.Visibility = Visibility.Visible;
+        StatusText.Text = "Choose a folder on the left, type a path, or drop a folder here.";
+        SetExportEnabled(false);
+        UpdateEditMenu();
+        FolderPathBox.Focus();
+    }
+
+    private void ClearTreeSelection()
+    {
+        foreach (var root in _roots)
+            ClearTreeSelection(root);
+    }
+
+    private static void ClearTreeSelection(FolderNode node)
+    {
+        node.IsSelected = false;
+        foreach (var child in node.Children)
+            ClearTreeSelection(child);
+    }
+
+    private void UpdateClearReset()
+    {
+        ClearButton.IsEnabled = SearchBox.Text.Length > 0;
+        ResetButton.IsEnabled = _scanning
+            || _all.Count > 0
+            || FolderPathBox.Text.Length > 0
+            || SearchBox.Text.Length > 0;
     }
 
     private void ApplyFilter()
@@ -331,7 +493,7 @@ public partial class MainWindow : Window
             return;
 
         _exporting = true;
-        ExportButton.IsEnabled = false;
+        SetExportEnabled(false);
         ExportButton.Content = "Exporting…";
         Mouse.OverrideCursor = Cursors.Wait;
         try
@@ -372,7 +534,7 @@ public partial class MainWindow : Window
             Mouse.OverrideCursor = null;
             _exporting = false;
             ExportButton.Content = "Export";
-            ExportButton.IsEnabled = VisibleCount() > 0 && !_scanning;
+            SetExportEnabled(VisibleCount() > 0 && !_scanning);
         }
     }
 
@@ -407,7 +569,9 @@ public partial class MainWindow : Window
         if (row is null)
             return;
 
-        row.IsSelected = true;
+        if (!row.IsSelected)
+            ItemsGrid.SelectedItem = row.Item;
+
         row.Focus();
     }
 
@@ -415,6 +579,24 @@ public partial class MainWindow : Window
     {
         if (ItemsGrid.SelectedItem is FileEntry entry)
             TryReveal(entry.FilePath);
+    }
+
+    private void ContextCopyName_Click(object sender, RoutedEventArgs e)
+    {
+        var names = new List<string>();
+        foreach (var item in ItemsGrid.SelectedItems)
+        {
+            if (item is FileEntry entry && entry.FileName.Length > 0)
+                names.Add(entry.FileName);
+        }
+
+        if (names.Count == 0)
+            return;
+
+        Clipboard.SetText(string.Join(Environment.NewLine, names));
+        StatusText.Text = names.Count == 1
+            ? "Copied the file name."
+            : $"Copied {names.Count:N0} file names.";
     }
 
     private void ContextCopy_Click(object sender, RoutedEventArgs e)
@@ -459,6 +641,11 @@ public partial class MainWindow : Window
             ExportButton_Click(ExportButton, new RoutedEventArgs());
             e.Handled = true;
         }
+        else if (e.Key == Key.F1)
+        {
+            HelpMenu_Click(this, new RoutedEventArgs());
+            e.Handled = true;
+        }
     }
 
     private void TryReveal(string path)
@@ -478,7 +665,22 @@ public partial class MainWindow : Window
         _scanning = scanning;
         ScanButton.Content = scanning ? "Cancel" : "Scan";
         ScanButton.IsEnabled = true;
-        ExportButton.IsEnabled = !scanning && !_exporting && VisibleCount() > 0;
+        SetExportEnabled(!scanning && !_exporting && VisibleCount() > 0);
+        ScanOverlay.Visibility = scanning ? Visibility.Visible : Visibility.Collapsed;
+        ScanProgress.IsIndeterminate = scanning;
+        if (scanning)
+            EmptyText.Visibility = Visibility.Collapsed;
+    }
+
+    private static string ItemCount(int count)
+    {
+        return count == 1 ? "1 item" : $"{count:N0} items";
+    }
+
+    private void SetExportEnabled(bool enabled)
+    {
+        ExportButton.IsEnabled = enabled;
+        FileExportItem.IsEnabled = enabled;
     }
 
     private int VisibleCount()
@@ -505,7 +707,7 @@ public partial class MainWindow : Window
             summary += $" · {_lastElapsed.TotalSeconds:0.0}s";
 
         StatusText.Text = summary;
-        ExportButton.IsEnabled = shown > 0 && !_scanning && !_exporting;
+        SetExportEnabled(shown > 0 && !_scanning && !_exporting);
 
         if (total == 0)
         {
@@ -672,7 +874,7 @@ public partial class MainWindow : Window
             nodes.Add(CreateNode($"{label} ({letter})", drive.RootDirectory.FullName, FolderKind.Drive, expandable: true));
         }
 
-        nodes.Sort((left, right) => string.Compare(left.Name, right.Name, StringComparison.CurrentCultureIgnoreCase));
+        nodes.Sort((left, right) => string.Compare(left.FullPath, right.FullPath, StringComparison.OrdinalIgnoreCase));
         return nodes;
     }
 
